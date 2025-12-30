@@ -11,6 +11,7 @@ class RegisterView(views.APIView):
 
     @extend_schema(request=UserRegisterSerializer, responses={201: UserRegisterSerializer})
     def post(self, request):
+        """Register user by email and username"""
         serializer = UserRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 

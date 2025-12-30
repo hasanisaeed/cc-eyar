@@ -8,9 +8,11 @@ from .serializers import OrderSerializer
 
 
 class OrderViewSet(viewsets.ViewSet):
+    """API ViewSet for managing orders with RBAC enforcement."""
     permission_classes = [IsOwnerOrAdmin]
 
     def __init__(self, **kwargs):
+        """Injects OrderService with DjangoOrderRepository implementation."""
         super().__init__(**kwargs)
         self.service = OrderService(repository=DjangoOrderRepository())
 
@@ -23,11 +25,13 @@ class OrderViewSet(viewsets.ViewSet):
         responses=OrderSerializer(many=True)
     )
     def list(self, request):
+        """Retrieve orders with role-based filtering and criteria."""
         orders = self.service.get_orders_for_user(request.user, request.query_params)
         return Response(OrderSerializer(orders, many=True).data)
 
     @extend_schema(request=OrderSerializer, responses=OrderSerializer)
     def create(self, request):
+        """Create a new order for the authenticated customer."""
         serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         if not request.user or not request.user.id:
@@ -40,6 +44,7 @@ class OrderViewSet(viewsets.ViewSet):
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, pk=None):
+        """Securely update order details based on user permissions."""
         try:
             order = self.service.update_order_securely(pk, request.user, request.data)
             if not order:
@@ -49,6 +54,7 @@ class OrderViewSet(viewsets.ViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
     def destroy(self, request, pk=None):
+        """Securely delete an order by its primary key."""
         try:
             success = self.service.delete_order_securely(pk, request.user)
             if not success:
