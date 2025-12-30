@@ -43,6 +43,11 @@ class OrderViewSet(viewsets.ViewSet):
         )
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(
+        request=OrderSerializer,
+        responses={200: OrderSerializer, 403: None, 404: None},
+        description="Update order fields. Total price is recalculated if quantity/price changes."
+    )
     def partial_update(self, request, pk=None):
         """Securely update order details based on user permissions."""
         try:
@@ -53,6 +58,10 @@ class OrderViewSet(viewsets.ViewSet):
         except PermissionError:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
+    @extend_schema(
+        responses={204: None, 403: None, 404: None},
+        description="Permanently delete an order. Only owners or admins can perform this."
+    )
     def destroy(self, request, pk=None):
         """Securely delete an order by its primary key."""
         try:

@@ -7,7 +7,7 @@ from typing import Optional
 class OrderEntity:
     product_name: str
     quantity: int
-    total_price: float
+    total_price: int
     customer_id: int
     id: Optional[int] = None
     created_at: Optional[datetime] = None

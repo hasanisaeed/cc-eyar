@@ -1,4 +1,5 @@
 from typing import List, Optional
+from django.utils import timezone
 from apps.orders.domain.entities import OrderEntity
 from apps.orders.domain.repositories import OrderRepositoryInterface
 from apps.orders.infrastructure.models.order import Order
@@ -22,14 +23,15 @@ class DjangoOrderRepository(OrderRepositoryInterface):
                 product_name=entity.product_name,
                 quantity=entity.quantity,
                 total_price=entity.total_price,
-                customer_id=entity.customer_id
+                customer_id=entity.customer_id,
+                updated_at=timezone.now()
             )
             obj = Order.objects.get(id=entity.id)
         else:
             obj = Order.objects.create(
                 product_name=entity.product_name,
                 quantity=entity.quantity,
-                total_price=entity.total_price,
+                total_price=int(entity.total_price),
                 customer_id=entity.customer_id
             )
         return self._to_entity(obj)

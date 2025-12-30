@@ -23,7 +23,7 @@ class TestOrderService:
             unit_price=10.0
         )
 
-        assert order.total_price == 50.0
+        assert order.total_price == 50
         assert mock_repo.save.called
 
     def test_get_orders_for_customer_adds_owner_filter(self, service, mock_repo):

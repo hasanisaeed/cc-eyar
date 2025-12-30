@@ -5,7 +5,7 @@ from django.conf import settings
 class Order(models.Model):
     product_name = models.CharField(max_length=255)
     quantity = models.PositiveIntegerField()
-    total_price = models.DecimalField(max_digits=12, decimal_places=2)
+    total_price = models.PositiveBigIntegerField()
     customer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

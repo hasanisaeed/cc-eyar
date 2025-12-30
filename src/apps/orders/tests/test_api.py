@@ -17,7 +17,7 @@ class TestOrderAPI:
         response = api_client.post(url, data)
 
         assert response.status_code == status.HTTP_201_CREATED
-        assert float(response.data['total_price']) == 1000.0
+        assert float(response.data['total_price']) == 1000
 
     def test_customer_only_sees_own_orders(self, api_client, customer_user, other_customer, db):
         from apps.orders.infrastructure.models.order import Order
