@@ -20,7 +20,7 @@ DATABASES = {
     }
 }
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*'] # TODO Add to .env file
 
 INSTALLED_APPS = [
     'django.contrib.admin',
