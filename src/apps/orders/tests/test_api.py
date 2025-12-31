@@ -60,3 +60,52 @@ class TestOrderAPI:
         response = api_client.delete(url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_total_price_is_integer(self, api_client, customer_user):
+        api_client.force_authenticate(user=customer_user)
+        data = {
+            "product_name": "Integer Test",
+            "quantity": 3,
+            "unit_price": 100.75
+        }
+        response = api_client.post(reverse('order-list'), data)
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert isinstance(response.data['total_price'], (int, float))
+        assert float(response.data['total_price']) == 302
+
+    def test_updated_at_changes_on_partial_update(self, api_client, customer_user):
+        from apps.orders.infrastructure.models.order import Order
+        import time
+
+        order = Order.objects.create(
+            product_name="Initial",
+            quantity=1,
+            total_price=100,
+            customer=customer_user
+        )
+        initial_update_time = order.updated_at
+
+        time.sleep(1)
+
+        api_client.force_authenticate(user=customer_user)
+        url = reverse('order-detail', kwargs={'pk': order.id})
+        api_client.patch(url, {"product_name": "Updated Name"})
+
+        order.refresh_from_db()
+        assert order.updated_at > initial_update_time
+
+    def test_unauthorized_access_to_others_order_detail(self, api_client, other_customer, customer_user):
+        from apps.orders.infrastructure.models.order import Order
+        order = Order.objects.create(
+            product_name="C1 Order",
+            quantity=1,
+            total_price=50,
+            customer=customer_user
+        )
+
+        api_client.force_authenticate(user=other_customer)
+        url = reverse('order-detail', kwargs={'pk': order.id})
+        response = api_client.get(url)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN

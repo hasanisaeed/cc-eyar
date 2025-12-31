@@ -43,6 +43,15 @@ class OrderViewSet(viewsets.ViewSet):
         )
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
+    def retrieve(self, request, pk=None):
+        """Get a single order detail if the user has permission."""
+        order = self.service.repository.get_by_id(pk)
+        if not order:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        self.check_object_permissions(request, order)
+        return Response(OrderSerializer(order).data)
+
     @extend_schema(
         request=OrderSerializer,
         responses={200: OrderSerializer, 403: None, 404: None},
